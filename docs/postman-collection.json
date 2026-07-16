@@ -1,0 +1,380 @@
+{
+  "info": {
+    "name": "E-Commerce Platform API",
+    "description": "Multi-role (Admin / Merchant / Customer) e-commerce REST API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (Customer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"Passw0rd!\",\n  \"phone\": \"9999999999\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\",\n  \"otp\": \"123456\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/verify-otp", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "verify-otp"] }
+          }
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/resend-otp", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "resend-otp"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "if (pm.response.code === 200) {",
+              "  const data = pm.response.json().data;",
+              "  pm.collectionVariables.set('accessToken', data.accessToken);",
+              "  pm.collectionVariables.set('refreshToken', data.refreshToken);",
+              "}"
+            ] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"Passw0rd!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/refresh-token", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "refresh-token"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "logout"] }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "forgot-password"] }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"NewPassw0rd!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "reset-password"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public - Products & Categories",
+      "item": [
+        {
+          "name": "Browse Products",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/products?keyword=mouse&sortBy=price&sortDir=asc&page=0&size=10", "host": ["{{baseUrl}}"], "path": ["api", "v1", "products"], "query": [
+              { "key": "keyword", "value": "mouse" },
+              { "key": "sortBy", "value": "price" },
+              { "key": "sortDir", "value": "asc" },
+              { "key": "page", "value": "0" },
+              { "key": "size", "value": "10" }
+            ] }
+          }
+        },
+        {
+          "name": "Product Details",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/products/1", "host": ["{{baseUrl}}"], "path": ["api", "v1", "products", "1"] }
+          }
+        },
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/categories", "host": ["{{baseUrl}}"], "path": ["api", "v1", "categories"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/profile", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "profile"] }
+          }
+        },
+        {
+          "name": "Add Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"addressLine1\": \"221B Baker Street\",\n  \"city\": \"Bengaluru\",\n  \"state\": \"Karnataka\",\n  \"postalCode\": \"560001\",\n  \"country\": \"India\",\n  \"phone\": \"9999999999\",\n  \"isDefault\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/addresses", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "addresses"] }
+          }
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"productId\": 1,\n  \"quantity\": 2\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/cart/items", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "cart", "items"] }
+          }
+        },
+        {
+          "name": "View Cart",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/cart", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "cart"] }
+          }
+        },
+        {
+          "name": "Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"addressId\": 1\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/orders/checkout", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "orders", "checkout"] }
+          }
+        },
+        {
+          "name": "Order History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/orders", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "orders"] }
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/orders/1/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "orders", "1", "cancel"] }
+          }
+        },
+        {
+          "name": "Create Razorpay Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/orders/1/payment/create", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "orders", "1", "payment", "create"] }
+          }
+        },
+        {
+          "name": "Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"razorpayOrderId\": \"order_xxx\",\n  \"razorpayPaymentId\": \"pay_xxx\",\n  \"razorpaySignature\": \"signature_xxx\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/customer/payments/verify", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "payments", "verify"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Merchant",
+      "item": [
+        {
+          "name": "First Login Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"tempPassword\": \"TempPass123!\",\n  \"newPassword\": \"NewSecure1!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/merchant/first-login/change-password", "host": ["{{baseUrl}}"], "path": ["api", "v1", "merchant", "first-login", "change-password"] }
+          }
+        },
+        {
+          "name": "Add Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"categoryId\": 1,\n  \"name\": \"Wireless Mouse\",\n  \"description\": \"Ergonomic 2.4GHz wireless mouse\",\n  \"price\": 499.00,\n  \"stock\": 50\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/merchant/products", "host": ["{{baseUrl}}"], "path": ["api", "v1", "merchant", "products"] }
+          }
+        },
+        {
+          "name": "Upload Product Images",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "files", "type": "file", "src": [] }] },
+            "url": { "raw": "{{baseUrl}}/api/v1/merchant/products/1/images", "host": ["{{baseUrl}}"], "path": ["api", "v1", "merchant", "products", "1", "images"] }
+          }
+        },
+        {
+          "name": "Update Stock",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"stock\": 75\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/merchant/products/1/stock", "host": ["{{baseUrl}}"], "path": ["api", "v1", "merchant", "products", "1", "stock"] }
+          }
+        },
+        {
+          "name": "My Products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/merchant/products?keyword=mouse", "host": ["{{baseUrl}}"], "path": ["api", "v1", "merchant", "products"], "query": [{ "key": "keyword", "value": "mouse" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "if (pm.response.code === 200) {",
+              "  pm.collectionVariables.set('accessToken', pm.response.json().data.accessToken);",
+              "}"
+            ] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@ecommerce.com\",\n  \"password\": \"Admin@12345\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Create Merchant",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"merchant@example.com\",\n  \"businessName\": \"Kumar Textiles\",\n  \"gstNumber\": \"29ABCDE1234F1Z5\",\n  \"contactPhone\": \"9888888888\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/merchants", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "merchants"] }
+          }
+        },
+        {
+          "name": "List Merchants",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/merchants?keyword=kumar&locked=false", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "merchants"], "query": [
+              { "key": "keyword", "value": "kumar" },
+              { "key": "locked", "value": "false" }
+            ] }
+          }
+        },
+        {
+          "name": "Block Merchant",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/merchants/2/block", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "merchants", "2", "block"] }
+          }
+        },
+        {
+          "name": "List Pending Products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/products?status=PENDING", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "products"], "query": [{ "key": "status", "value": "PENDING" }] }
+          }
+        },
+        {
+          "name": "Approve Product",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/products/1/approve", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "products", "1", "approve"] }
+          }
+        },
+        {
+          "name": "Reject Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Product images are unclear\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/products/1/reject", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "products", "1", "reject"] }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Electronics\",\n  \"description\": \"Phones, laptops, accessories\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/categories", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "categories"] }
+          }
+        }
+      ]
+    }
+  ]
+}

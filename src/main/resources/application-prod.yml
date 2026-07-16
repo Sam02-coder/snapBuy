@@ -1,0 +1,180 @@
+spring:
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      pool-name: SnapBuyPool
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      validation-timeout: 5000
+      leak-detection-threshold: 60000
+      auto-commit: false
+
+  jpa:
+
+    open-in-view: false
+
+    show-sql: false
+
+    hibernate:
+      ddl-auto: validate
+
+    properties:
+
+      hibernate:
+
+        format_sql: false
+
+        jdbc:
+          batch_size: 50
+
+        order_inserts: true
+        order_updates: true
+
+        jdbc.batch_versioned_data: true
+
+        generate_statistics: false
+
+  sql:
+    init:
+      mode: never
+
+  data:
+
+    redis:
+
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+
+      ssl:
+        enabled: true
+
+      timeout: 5s
+
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 5s
+
+  mail:
+
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
+    properties:
+
+      mail:
+
+        smtp:
+
+          auth: true
+
+          starttls:
+            enable: true
+
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+server:
+
+  port: ${SERVER_PORT:8080}
+
+  shutdown: graceful
+
+  forward-headers-strategy: framework
+
+  compression:
+    enabled: true
+    mime-types:
+      - application/json
+      - application/xml
+      - text/html
+      - text/plain
+      - text/css
+      - application/javascript
+    min-response-size: 1024
+
+  servlet:
+    session:
+      timeout: 30m
+
+spring.lifecycle:
+  timeout-per-shutdown-phase: 30s
+
+management:
+
+  endpoints:
+
+    web:
+
+      exposure:
+        include: health,info,metrics,prometheus
+
+  endpoint:
+
+    health:
+      show-details: never
+
+  metrics:
+    tags:
+      application: SnapBuy
+
+info:
+
+  app:
+    name: SnapBuy
+    version: 1.0.0
+    environment: Production
+
+app:
+
+  jwt:
+    secret: ${JWT_SECRET}
+
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID}
+    key-secret: ${RAZORPAY_KEY_SECRET}
+
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS}
+
+logging:
+
+  level:
+
+    root: WARN
+
+    com.snapBuy: INFO
+
+    org.springframework.security: WARN
+
+    org.hibernate.SQL: OFF
+
+    org.hibernate.orm.jdbc.bind: OFF
+
+  pattern:
+
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
+
+  file:
+    name: logs/snapbuy.log
+
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+      total-size-cap: 1GB

@@ -1,0 +1,91 @@
+spring:
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    url: jdbc:mysql://localhost:3306/ecommerce_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+
+    username: root
+    password: root
+
+  jpa:
+
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+    open-in-view: false
+
+    properties:
+
+      hibernate:
+        format_sql: true
+
+  data:
+
+    redis:
+
+      host: localhost
+      port: 6379
+      password:
+
+      timeout: 60000
+
+  mail:
+
+    host: smtp.gmail.com
+    port: 587
+
+    username: ${MAIL_USERNAME:your_email@gmail.com}
+    password: ${MAIL_PASSWORD:your_app_password}
+
+    properties:
+
+      mail:
+
+        smtp:
+
+          auth: true
+
+          starttls:
+            enable: true
+
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+server:
+  port: 8080
+
+app:
+
+  jwt:
+
+    secret: 1234567890123456789012345678901234567890123456789012345678901234
+
+  razorpay:
+
+    key-id: your_key_id
+    key-secret: your_key_secret
+
+  cors:
+
+    allowed-origins:
+      - http://localhost:5173
+
+logging:
+
+  level:
+
+    root: INFO
+
+    com.snapBuy: DEBUG
+
+    org.hibernate.SQL: DEBUG
+
+    org.hibernate.orm.jdbc.bind: TRACE
+
+  pattern:
+
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"

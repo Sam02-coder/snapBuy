@@ -1,0 +1,89 @@
+spring:
+  application:
+    name: SnapBuy
+
+  profiles:
+    active: dev
+
+  jackson:
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
+
+server:
+  port: 8080
+
+  error:
+    include-message: always
+    include-binding-errors: always
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+
+  group-configs:
+    - group: Authentication
+      paths-to-match: /api/v1/auth/**
+
+    - group: Products
+      paths-to-match: /api/v1/products/**
+
+    - group: Categories
+      paths-to-match: /api/v1/categories/**
+
+    - group: Customer
+      paths-to-match: /api/v1/customer/**
+
+    - group: Merchant
+      paths-to-match: /api/v1/merchant/**
+
+    - group: Admin
+      paths-to-match: /api/v1/admin/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+  endpoint:
+    health:
+      show-details: always
+
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: SnapBuy
+    description: Multi Vendor E-Commerce REST API
+    version: 1.0.0
+
+app:
+
+  jwt:
+    access-token-expiry-ms: 900000
+    refresh-token-expiry-ms: 604800000
+
+  otp:
+    expiry-seconds: 300
+    resend-cooldown-seconds: 60
+    max-attempts: 5
+
+  upload:
+    dir: uploads
+
+  admin:
+    email: admin@snapbuy.com
+    default-password: Admin@12345
