@@ -2,14 +2,11 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-    url: jdbc:mysql://localhost:3306/ecommerce_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-
-    username: root
-    password: root
+    url: ${DB_URL:jdbc:mysql://localhost:3306/snapbuy_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
 
   jpa:
-
     hibernate:
       ddl-auto: update
 
@@ -17,75 +14,58 @@ spring:
 
     open-in-view: false
 
-    properties:
+    defer-datasource-initialization: true
 
+    properties:
       hibernate:
         format_sql: true
 
+  sql:
+    init:
+      mode: never
+
   data:
-
     redis:
-
-      host: localhost
-      port: 6379
-      password:
-
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
       timeout: 60000
 
   mail:
-
     host: smtp.gmail.com
     port: 587
 
-    username: ${MAIL_USERNAME:your_email@gmail.com}
-    password: ${MAIL_PASSWORD:your_app_password}
+    username: ${MAIL_USERNAME:john.doe@gmail.com}
+    password: ${MAIL_PASSWORD:abcd efgh ijkl mnop}
 
     properties:
-
       mail:
-
         smtp:
-
           auth: true
-
           starttls:
             enable: true
-
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-
-server:
-  port: 8080
 
 app:
 
   jwt:
-
-    secret: 1234567890123456789012345678901234567890123456789012345678901234
+    secret: ${JWT_SECRET:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789}
 
   razorpay:
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_1234567890abcd}
+    key-secret: ${RAZORPAY_KEY_SECRET:1234567890abcdefghijklmnopqrstuvwxyz}
 
-    key-id: your_key_id
-    key-secret: your_key_secret
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:my-cloud-name}
+    api-key: ${CLOUDINARY_API_KEY:123456789012345}
+    api-secret: ${CLOUDINARY_API_SECRET:abcdefghijklmnopqrstuvwxyz123456}
 
   cors:
-
     allowed-origins:
-      - http://localhost:5173
+      - ${FRONTEND_URL:http://localhost:5173}
 
 logging:
-
   level:
-
     root: INFO
-
     com.snapBuy: DEBUG
-
     org.hibernate.SQL: DEBUG
-
     org.hibernate.orm.jdbc.bind: TRACE
-
-  pattern:
-
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"

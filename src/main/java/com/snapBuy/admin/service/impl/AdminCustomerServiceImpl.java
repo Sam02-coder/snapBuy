@@ -1,16 +1,9 @@
 package com.snapBuy.admin.service.impl;
 
-import com.snapBuy.admin.dto.request.CreateMerchantRequest;
-import com.snapBuy.admin.dto.request.UpdateMerchantRequest;
 import com.snapBuy.admin.dto.response.CustomerResponse;
-import com.snapBuy.admin.dto.response.MerchantResponse;
 import com.snapBuy.admin.mapper.CustomerMapper;
 import com.snapBuy.admin.service.AdminCustomerService;
-import com.snapBuy.admin.service.AdminMerchantService;
 import com.snapBuy.auth.repository.RefreshTokenRepository;
-import com.snapBuy.common.constant.AppConstants;
-import com.snapBuy.common.response.ApiResponse;
-import com.snapBuy.common.response.PageResponse;
 import com.snapBuy.customer.entity.CustomerProfile;
 import com.snapBuy.customer.repository.CustomerProfileRepository;
 import com.snapBuy.customer.spec.CustomerProfileSpecifications;
@@ -35,14 +28,22 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
     private final CustomerMapper customerMapper;
 
     @Override
-    public Page<CustomerResponse> listCustomers(String keyword, Boolean locked, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<CustomerResponse> listCustomers(String keyword,
+                                                Boolean locked,
+                                                Pageable pageable) {
+
         Specification<CustomerProfile> spec = Specification
                 .where(CustomerProfileSpecifications.nameOrEmailContains(keyword))
                 .and(CustomerProfileSpecifications.isLocked(locked));
-        return customerProfileRepository.findAll(spec, pageable).map(customerMapper::toResponse);
+
+        return customerProfileRepository
+                .findAll(spec, pageable)
+                .map(customerMapper::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CustomerResponse getCustomer(Long customerId) {
         return customerMapper.toResponse(findProfileByUserId(customerId));
     }

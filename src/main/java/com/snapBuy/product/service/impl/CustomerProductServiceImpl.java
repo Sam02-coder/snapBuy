@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -24,6 +25,7 @@ public class CustomerProductServiceImpl implements CustomerProductService {
     private final ProductMapper productMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProductResponse> browseProducts(
             String keyword, Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
 
@@ -38,6 +40,7 @@ public class CustomerProductServiceImpl implements CustomerProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @Cacheable(value = "products", key = "#productId")
     public ProductResponse getProductDetails(Long productId) {
         Product product = productRepository.findById(productId)

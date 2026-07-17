@@ -26,4 +26,6 @@ public interface ProductService {
     Page<ProductResponse> getMerchantProducts(Long merchantId, String keyword, Pageable pageable);
 
     ProductResponse getMerchantProduct(Long merchantId, Long productId);
+    
+    ProductResponse getProductDetails(Long productId);
 }

@@ -28,13 +28,19 @@ public class AdminProductServiceImpl implements AdminProductService {
     private final ProductMapper productMapper;
 
     @Override
-    public Page<ProductResponse> listProducts(String keyword, ApprovalStatus status, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> listProducts(String keyword,
+                                              ApprovalStatus status,
+                                              Pageable pageable) {
+
         Specification<Product> spec = Specification
                 .where(ProductSpecifications.nameContains(keyword))
                 .and(status != null
                         ? (root, query, cb) -> cb.equal(root.get("approvalStatus"), status)
                         : null);
-        return productRepository.findAll(spec, pageable).map(productMapper::toResponse);
+
+        return productRepository.findAll(spec, pageable)
+                .map(productMapper::toResponse);
     }
 
     @Override

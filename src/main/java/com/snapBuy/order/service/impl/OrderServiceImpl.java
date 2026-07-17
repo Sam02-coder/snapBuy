@@ -131,11 +131,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<OrderResponse> getOrderHistory(Long customerId, Pageable pageable) {
         return orderRepository.findByCustomerId(customerId, pageable).map(this::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OrderResponse getOrderDetails(Long customerId, Long orderId) {
         return toResponse(findOwnedOrder(customerId, orderId));
     }

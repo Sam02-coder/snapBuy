@@ -14,7 +14,7 @@ import com.snapBuy.product.entity.ProductImage;
 import com.snapBuy.product.mapper.ProductMapper;
 import com.snapBuy.product.repository.ProductImageRepository;
 import com.snapBuy.product.repository.ProductRepository;
-import com.snapBuy.product.service.ProductImageStorageService;
+import com.snapBuy.product.service.CloudinaryService;
 import com.snapBuy.product.service.ProductService;
 import com.snapBuy.product.spec.ProductSpecifications;
 import com.snapBuy.user.User;
@@ -23,6 +23,7 @@ import com.snapBuy.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductImageRepository productImageRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
-    private final ProductImageStorageService imageStorageService;
+    private final CloudinaryService cloudinaryService;
     private final ProductMapper productMapper;
 
     @Override
@@ -111,8 +112,8 @@ public class ProductServiceImpl implements ProductService {
 
         int startOrder = product.getImages().size();
         for (int i = 0; i < files.size(); i++) {
-            String url = imageStorageService.store(files.get(i), productId);
-            ProductImage image = ProductImage.builder()
+        	String url = cloudinaryService.upload(files.get(i), productId);
+        	ProductImage image = ProductImage.builder()
                     .product(product)
                     .imageUrl(url)
                     .displayOrder(startOrder + i)
@@ -134,11 +135,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getMerchantProducts(Long merchantId, String keyword, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> getMerchantProducts(
+            Long merchantId,
+            String keyword,
+            Pageable pageable) {
+
         Specification<Product> spec = Specification
                 .where(ProductSpecifications.ownedByMerchant(merchantId))
                 .and(ProductSpecifications.nameContains(keyword));
-        return productRepository.findAll(spec, pageable).map(productMapper::toResponse);
+
+        return productRepository.findAll(spec, pageable)
+                .map(productMapper::toResponse);
     }
 
     @Override
@@ -153,5 +161,28 @@ public class ProductServiceImpl implements ProductService {
             throw new ForbiddenException("You do not have access to this product");
         }
         return product;
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "#productId")
+    public ProductResponse getProductDetails(Long productId) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        System.out.println("1. Product loaded");
+
+        if (!product.isVisibleToCustomers()) {
+            throw new ResourceNotFoundException("Product not found");
+        }
+
+        System.out.println("2. Before mapper");
+
+        ProductResponse response = productMapper.toResponse(product);
+
+        System.out.println("3. After mapper");
+
+        return response;
     }
 }

@@ -3,6 +3,7 @@ package com.snapBuy.category.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "categories", allEntries = true)
+    @Caching(evict = {
+    	    @CacheEvict(value = "categories", allEntries = true),
+    	    @CacheEvict(value = "activeCategories", allEntries = true)
+    	})
     public CategoryResponse createCategory(CreateCategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new DuplicateResourceException("A category with this name already exists");
@@ -42,7 +46,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "categories", allEntries = true)
+    @Caching(evict = {
+    	    @CacheEvict(value = "categories", allEntries = true),
+    	    @CacheEvict(value = "activeCategories", allEntries = true)
+    	})
     public CategoryResponse updateCategory(Long categoryId, UpdateCategoryRequest request) {
         Category category = findCategory(categoryId);
 
@@ -58,7 +65,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "categories", allEntries = true)
+    @Caching(evict = {
+    	    @CacheEvict(value = "categories", allEntries = true),
+    	    @CacheEvict(value = "activeCategories", allEntries = true)
+    	})
     public void deleteCategory(Long categoryId) {
         Category category = findCategory(categoryId);
         // Soft delete: products reference categories without cascade, so a hard
@@ -80,9 +90,27 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Cacheable(value = "categories", key = "'active-list'")
+    @Cacheable(
+            value = "activeCategories",
+            key = "'list'",
+            sync = true
+    )
     public List<CategoryResponse> getActiveCategories() {
-        return categoryRepository.findByActiveTrue().stream().map(categoryMapper::toResponse).toList();
+
+        System.out.println("STEP-1");
+
+        List<Category> categories = categoryRepository.findByActiveTrue();
+
+        System.out.println("STEP-2 size = " + categories.size());
+
+        List<CategoryResponse> response =
+                categories.stream()
+                        .map(categoryMapper::toResponse)
+                        .collect(java.util.stream.Collectors.toList());
+
+        System.out.println("STEP-3 mapped");
+
+        return response;
     }
 
     private Category findCategory(Long categoryId) {

@@ -2,21 +2,12 @@ package com.snapBuy.admin.service.impl;
 
 import com.snapBuy.admin.dto.request.CreateMerchantRequest;
 import com.snapBuy.admin.dto.request.UpdateMerchantRequest;
-import com.snapBuy.admin.dto.response.CustomerResponse;
 import com.snapBuy.admin.dto.response.MerchantResponse;
-import com.snapBuy.admin.mapper.CustomerMapper;
 import com.snapBuy.admin.mapper.MerchantMapper;
-import com.snapBuy.admin.service.AdminCustomerService;
 import com.snapBuy.admin.service.AdminMerchantService;
 import com.snapBuy.auth.repository.RefreshTokenRepository;
-import com.snapBuy.common.constant.AppConstants;
 import com.snapBuy.common.enums.Role;
-import com.snapBuy.common.response.ApiResponse;
-import com.snapBuy.common.response.PageResponse;
 import com.snapBuy.common.util.PasswordGenerator;
-import com.snapBuy.customer.entity.CustomerProfile;
-import com.snapBuy.customer.repository.CustomerProfileRepository;
-import com.snapBuy.customer.spec.CustomerProfileSpecifications;
 import com.snapBuy.exception.DuplicateResourceException;
 import com.snapBuy.exception.ResourceNotFoundException;
 import com.snapBuy.merchant.entity.MerchantProfile;
@@ -127,14 +118,21 @@ public class AdminMerchantServiceImpl implements AdminMerchantService {
     }
 
     @Override
-    public Page<MerchantResponse> listMerchants(String keyword, Boolean locked, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<MerchantResponse> listMerchants(String keyword,
+                                                Boolean locked,
+                                                Pageable pageable) {
+
         Specification<MerchantProfile> spec = Specification
                 .where(MerchantProfileSpecifications.businessNameOrEmailContains(keyword))
                 .and(MerchantProfileSpecifications.isLocked(locked));
-        return merchantProfileRepository.findAll(spec, pageable).map(merchantMapper::toResponse);
-    }
 
+        return merchantProfileRepository
+                .findAll(spec, pageable)
+                .map(merchantMapper::toResponse);
+    }
     @Override
+    @Transactional(readOnly = true)
     public MerchantResponse getMerchant(Long merchantId) {
         return merchantMapper.toResponse(findProfileByUserId(merchantId));
     }
