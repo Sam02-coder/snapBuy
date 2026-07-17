@@ -169,12 +169,3 @@ logging:
   pattern:
 
     console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
-
-  file:
-    name: logs/snapbuy.log
-
-  logback:
-    rollingpolicy:
-      max-file-size: 10MB
-      max-history: 30
-      total-size-cap: 1GB
