@@ -55,7 +55,7 @@ spring:
       password: ${REDIS_PASSWORD}
 
       ssl:
-        enabled: true
+        enabled: false
 
       timeout: 5s
 
