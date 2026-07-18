@@ -16,6 +16,8 @@ import com.snapBuy.cart.service.CartService;
 import com.snapBuy.exception.ForbiddenException;
 import com.snapBuy.exception.ResourceNotFoundException;
 import com.snapBuy.product.entity.Product;
+import com.snapBuy.product.entity.ProductImage;
+import com.snapBuy.product.repository.ProductImageRepository;
 import com.snapBuy.product.repository.ProductRepository;
 import com.snapBuy.user.User;
 import com.snapBuy.user.UserRepository;
@@ -30,6 +32,7 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
 
     @Override
@@ -143,8 +146,16 @@ public class CartServiceImpl implements CartService {
 
     private CartItemResponse toItemResponse(CartItem item) {
         Product product = item.getProduct();
-        String imageUrl = product.getImages().isEmpty() ? null : product.getImages().get(0).getImageUrl();
-        BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+
+        String imageUrl = productImageRepository
+                .findByProductIdOrderByDisplayOrderAsc(product.getId())
+                .stream()
+                .findFirst()
+                .map(ProductImage::getImageUrl)
+                .orElse(null);
+
+        BigDecimal subtotal = product.getPrice()
+                .multiply(BigDecimal.valueOf(item.getQuantity()));
 
         return CartItemResponse.builder()
                 .id(item.getId())
