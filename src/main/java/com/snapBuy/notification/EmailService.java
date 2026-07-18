@@ -1,17 +1,18 @@
 package com.snapBuy.notification;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClient;
+
 import com.snapBuy.common.enums.OrderStatus;
+import com.snapBuy.notification.dto.request.BrevoEmailRequest;
 
 import java.math.BigDecimal;
 
@@ -20,8 +21,18 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
+	private final RestClient restClient;
+	private final TemplateEngine templateEngine;
+
+	@Value("${app.brevo.api-key}")
+	private String apiKey;
+
+	@Value("${app.brevo.sender-email}")
+	private String senderEmail;
+
+	@Value("${app.brevo.sender-name}")
+	private String senderName;
+    
 
     private static final int OTP_EXPIRY_MINUTES = 5;
 
@@ -72,19 +83,33 @@ public class EmailService {
     }
 
     private void send(String toEmail, String subject, String templateName, Context context) {
+
         try {
+
             String html = templateEngine.process(templateName, context);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(html, true);
-            mailSender.send(message);
-        } catch (MessagingException ex) {
-            // Deliberately not rethrown - email failure shouldn't roll back the
-            // triggering transaction (e.g. registration). Logged for ops to catch.
-            log.error("Failed to send email to {}: {}", toEmail, ex.getMessage());
+            BrevoEmailRequest request = new BrevoEmailRequest(
+                    new BrevoEmailRequest.Sender(senderName, senderEmail),
+                    java.util.List.of(new BrevoEmailRequest.Recipient(toEmail)),
+                    subject,
+                    html
+            );
+
+            restClient.post()
+                    .uri("https://api.brevo.com/v3/smtp/email")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("accept", "application/json")
+                    .header("api-key", apiKey)
+                    .body(request)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            log.info("Email sent successfully to {}", toEmail);
+
+        } catch (Exception ex) {
+
+            log.error("Failed to send email to {}", toEmail, ex);
+
         }
     }
 }

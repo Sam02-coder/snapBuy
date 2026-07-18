@@ -59,6 +59,10 @@ app:
     api-key: ${CLOUDINARY_API_KEY:123456789012345}
     api-secret: ${CLOUDINARY_API_SECRET:abcdefghijklmnopqrstuvwxyz123456}
 
+  brevo:
+    api-key: ${BREVO_API_KEY}
+    sender-email: ${BREVO_SENDER_EMAIL}
+    sender-name: SnapBuy
   cors:
     allowed-origins:
       - ${FRONTEND_URL:http://localhost:5173}
